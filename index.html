@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>METAR Airport Control</title>
+</head>
+<body>
+  <h1>Set Airport Code</h1>
+  <input type="text" id="airport" placeholder="e.g., KSFO">
+  <button onclick="setAirport()">Set Airport</button>
+  <p id="result">Result will show here</p>
+  <script>
+    function setAirport() {
+      const airport = document.getElementById("airport").value;
+      if (!airport) {
+        document.getElementById("result").innerText = "Please enter an airport code!";
+        return;
+      }
+      fetch("https://metar-bulb-97477-8296397b8cbb.herokuapp.com/set_airport", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ airport: airport })
+      })
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById("result").innerText = data;
+      })
+      .catch(error => {
+        document.getElementById("result").innerText = "Error: " + error;
+      });
+    }
+  </script>
+</body>
+</html>
