@@ -1,3 +1,5 @@
+html
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,31 +8,31 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #1e3c72, #2a5298); /* Blue gradient */
-      color: #ffffff; /* White text */
+      background: linear-gradient(to bottom, #1e3c72, #2a5298);
+      color: #ffffff;
       text-align: center;
       padding: 20px;
       margin: 0;
       min-height: 100vh;
     }
     h1 {
-      font-size: 28px; /* Bigger for mobile */
+      font-size: 28px;
       margin-bottom: 25px;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Shadow for flair */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
     .container {
-      background: rgba(255, 255, 255, 0.1); /* Semi-transparent white */
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 15px;
       padding: 20px;
       max-width: 400px;
       margin: 0 auto;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
     input[type="text"] {
       width: 80%;
       max-width: 300px;
       padding: 12px;
-      font-size: 18px; /* Bigger for mobile */
+      font-size: 18px;
       margin-bottom: 15px;
       border: 2px solid #ffffff;
       border-radius: 8px;
@@ -38,41 +40,82 @@
       color: #333;
     }
     button {
-      padding: 12px 30px; /* Bigger tap area */
-      font-size: 18px; /* Bigger text */
-      background-color: #4CAF50; /* Green */
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: background-color 0.3s; /* Smooth hover */
+      transition: background-color 0.3s;
+      margin: 5px;
     }
     button:hover {
-      background-color: #45a049; /* Darker green */
+      background-color: #45a049;
     }
     p {
-      font-size: 16px; /* Readable on mobile */
-      white-space: pre-wrap; /* Preserves METAR line break */
-      background: rgba(0, 0, 0, 0.2); /* Dark backdrop */
+      font-size: 16px;
+      white-space: pre-wrap;
+      background: rgba(0, 0, 0, 0.2);
       padding: 10px;
       border-radius: 5px;
-      margin-top: 15px;
-      line-height: 1.4; /* Better spacing */
+      margin: 10px 0;
     }
-    @media (max-width: 600px) { /* Mobile adjustments */
+    .legend {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .legend div {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .bulb {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin: 20px auto;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      transition: background-color 0.5s;
+    }
+    @media (max-width: 600px) {
       h1 { font-size: 24px; }
       input[type="text"] { width: 90%; font-size: 16px; }
-      button { font-size: 16px; padding: 10px 25px; }
+      button { font-size: 14px; padding: 10px 15px; }
       p { font-size: 14px; }
+      .bulb { width: 40px; height: 40px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Set Airport Code</h1>
-    <input type="text" id="airport" placeholder="e.g., KONP">
+    <h1>METAR Bulb Control</h1>
+    <input type="text" id="airport" placeholder="e.g., KONP" list="airports">
+    <datalist id="airports">
+      <option value="KONP">Newport, OR</option>
+      <option value="KSFO">San Francisco, CA</option>
+      <option value="KJFK">New York, NY</option>
+      <option value="KTSP">Tehachapi, CA</option>
+    </datalist>
     <button onclick="setAirport()">Set Airport</button>
+    <div>
+      <button onclick="setPreset('KONP')">KONP</button>
+      <button onclick="setPreset('KSFO')">KSFO</button>
+      <button onclick="setPreset('KJFK')">KJFK</button>
+    </div>
+    <div id="bulb" class="bulb" style="background-color: grey;"></div>
+    <p id="status">Current status: Loading...</p>
     <p id="result">Result will show here</p>
+    <p id="details">Weather details: Loading...</p>
+    <div class="legend">
+      <div style="background-color: green;">Green = VFR</div>
+      <div style="background-color: blue;">Blue = MVFR</div>
+      <div style="background-color: red;">Red = IFR</div>
+      <div style="background-color: magenta;">Magenta = LIFR</div>
+    </div>
   </div>
   <script>
     function setAirport() {
@@ -89,11 +132,52 @@
       .then(response => response.text())
       .then(data => {
         document.getElementById("result").innerText = data;
+        updateStatus();
+        updateDetails();
       })
       .catch(error => {
         document.getElementById("result").innerText = "Error: " + error;
       });
     }
+
+    function setPreset(airport) {
+      document.getElementById("airport").value = airport;
+      setAirport();
+    }
+
+    function updateStatus() {
+      fetch("https://metar-bulb-97477-8296397b8cbb.herokuapp.com/status")
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("status").innerText = "Current status: " + data;
+          const color = data.split(" - ")[1].toLowerCase();
+          document.getElementById("bulb").style.backgroundColor = color;
+        })
+        .catch(error => {
+          document.getElementById("status").innerText = "Status error: " + error;
+        });
+    }
+
+    function updateDetails() {
+      fetch("https://metar-bulb-97477-8296397b8cbb.herokuapp.com/weather_details")
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("details").innerText = "Weather details:\n" + data;
+        })
+        .catch(error => {
+          document.getElementById("details").innerText = "Details error: " + error;
+        });
+    }
+
+    // Initial load
+    updateStatus();
+    updateDetails();
+
+    // Auto-refresh every 15 minutes (900000 ms)
+    setInterval(() => {
+      setAirport();
+    }, 900000);
   </script>
 </body>
 </html>
+
