@@ -90,17 +90,17 @@
 <body>
   <div class="container">
     <h1>METAR Bulb Control</h1>
-    <input type="text" id="airport" placeholder="e.g., KONP" list="airports">
+    <input type="text" id="airport" placeholder="e.g., KRBG" list="airports">
     <datalist id="airports">
-      <option value="KONP">Newport, OR</option>
-      <option value="KTSP">Tehachapi, CA</option>
-      <option value="77S">Creswell, OR</option>
+      <option value="KRBG">Roseburg, OR</option>
+      <option value="KEUG">Eugene, OR</option>
+      <option value="KSLE">Salem, OR</option>
     </datalist>
     <button onclick="setAirport()" style="background-color: #4CAF50;">Set Airport</button>
     <div>
-      <button id="preset-KONP" onclick="setPreset('KONP')">KONP</button>
-      <button id="preset-KTSP" onclick="setPreset('KTSP')">KTSP</button>
-      <button id="preset-77S" onclick="setPreset('77S')">77S</button>
+      <button id="preset-KRBG" onclick="setPreset('KRBG')">KRBG</button>
+      <button id="preset-KEUG" onclick="setPreset('KEUG')">KEUG</button>
+      <button id="preset-KSLE" onclick="setPreset('KSLE')">KSLE</button>
     </div>
     <div id="bulb" class="bulb" style="background-color: grey;"></div>
     <p id="status">Current status: Loading...</p>
